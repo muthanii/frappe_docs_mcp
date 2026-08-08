@@ -5,8 +5,9 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install
 
-COPY tsconfig.json ./
+COPY tsconfig.json tsconfig.build.json ./
 COPY src ./src
+# Uses tsconfig.build.json, which excludes *.test.ts from the emitted output.
 RUN npm run build
 
 # Runtime stage: production dependencies plus the compiled output only.

@@ -4,14 +4,12 @@ Open work, grouped by component, ordered P0 (highest) through P4.
 
 ## Build & tooling
 
-### Verify the test suite under Node
-**Priority:** P1
+### No CI pipeline
+**Priority:** P2
 
-`npm test` runs `tsc && node --test dist/`. The suite is currently verified with
-`bun test dist/` because Node is not installed on the development machine — only
-`bun` is. The tests use `node:test` and `node:assert/strict`, so they should run
-unchanged under Node 20, but that has not been executed. Run `npm test` on a
-machine with Node 20 (or in the Docker image) before relying on CI.
+Nothing runs `npm test` automatically. The suite currently passes under Node
+20.20.2 in the build image, but that was executed by hand. Add a workflow that
+builds the image and runs the tests on push.
 
 ### No lockfile for reproducible Docker builds
 **Priority:** P2
@@ -67,7 +65,8 @@ an explicit truncation notice.
   `framework/user` resolves to the index. **Completed:** v0.1.0 (2026-08-08)
 - **Drop node-fetch** — project is ESM, uses Node 20 global `fetch`.
   **Completed:** v0.1.0 (2026-08-08)
-- **Fix the Docker build context** — multi-stage build, `.dockerignore` added.
+- **Fix the Docker build context** — multi-stage build, `.dockerignore` added;
+  `tsconfig.build.json` keeps `*.test.ts` out of the image.
   **Completed:** v0.1.0 (2026-08-08)
 - **Reduce response size** — article extraction and markdown conversion.
   **Completed:** v0.1.0 (2026-08-08)

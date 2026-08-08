@@ -84,8 +84,12 @@ must be run attached with a client owning stdin and stdout.
 
 - `src/docs-url.ts` — URL construction and path sanitising, kept separate so the
   containment rules are directly testable.
-- `src/docs-url.test.ts` — `node:test` suite covering those rules.
+- `src/extract.ts` — article extraction and HTML-to-markdown conversion.
+- `src/*.test.ts` — `node:test` suites covering both.
 - `src/server.ts` — tool registration and the stdio transport.
+
+`npm run build` uses `tsconfig.build.json`, which excludes `*.test.ts` so tests
+do not ship in the image. `npm test` compiles everything, including the tests.
 
 Diagnostics must go to **stderr**. Anything written to stdout is interpreted as
 a protocol frame.

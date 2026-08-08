@@ -1,6 +1,7 @@
 # Frappe Docs MCP Server
 
 [![CI](https://github.com/muthanii/frappe_docs_mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/muthanii/frappe_docs_mcp/actions/workflows/ci.yml)
+[![frappe_docs_mcp MCP server](https://glama.ai/mcp/servers/muthanii/frappe_docs_mcp/badges/score.svg)](https://glama.ai/mcp/servers/muthanii/frappe_docs_mcp)
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that gives an
 MCP client read access to the
@@ -143,6 +144,8 @@ builds are reproducible.
 Diagnostics must go to **stderr**. Anything written to stdout is interpreted as
 a protocol frame; CI asserts that the server writes nothing to stdout before a
 client speaks.
+
+[![frappe_docs_mcp MCP server](https://glama.ai/mcp/servers/muthanii/frappe_docs_mcp/badges/card.svg)](https://glama.ai/mcp/servers/muthanii/frappe_docs_mcp)
 
 ## License
 

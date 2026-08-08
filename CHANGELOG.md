@@ -61,4 +61,4 @@ initial commit. Recorded here because the code shape changed substantially:
   which overflows a typical context window on a single call. Responses are now
   reduced to the article body and converted to markdown.
 
-[0.1.0]: https://github.com/OWNER/frappe_docs_mcp/releases/tag/v0.1.0
+[0.1.0]: https://github.com/muthanii/frappe_docs_mcp/releases/tag/v0.1.0

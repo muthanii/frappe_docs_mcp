@@ -31,6 +31,8 @@ global `fetch` built into Node 20.
 ## Quick start
 
 ```bash
+git clone https://github.com/muthanii/frappe_docs_mcp.git
+cd frappe_docs_mcp
 npm install
 npm run build
 npm test

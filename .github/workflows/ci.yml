@@ -37,6 +37,23 @@ jobs:
       - name: Typecheck and test
         run: npm test
 
+      # `npm test` globs dist/*.test.js. A glob that matches nothing fails
+      # loudly, but one that matches only some files would drop those suites
+      # silently and still report success, so assert the counts line up.
+      - name: Verify every test file ran
+        run: |
+          expected=$(ls src/*.test.ts | wc -l)
+          actual=$(ls dist/*.test.js | wc -l)
+          echo "test files: $expected source, $actual compiled"
+          if [ "$expected" -ne "$actual" ]; then
+            echo "::error::$expected test sources but $actual compiled; some suites were not run"
+            exit 1
+          fi
+          if [ "$expected" -eq 0 ]; then
+            echo "::error::no test files found at all"
+            exit 1
+          fi
+
       - name: Verify the build excludes tests
         run: |
           rm -rf dist

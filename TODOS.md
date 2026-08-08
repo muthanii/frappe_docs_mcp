@@ -2,55 +2,38 @@
 
 Open work, grouped by component, ordered P0 (highest) through P4.
 
-## Build & tooling
-
-### No CI pipeline
-**Priority:** P2
-
-Nothing runs `npm test` automatically. The suite currently passes under Node
-20.20.2 in the build image, but that was executed by hand. Add a workflow that
-builds the image and runs the tests on push.
-
-### No lockfile for reproducible Docker builds
-**Priority:** P2
-
-`bun install` writes `bun.lock`, but the `Dockerfile` runs `npm install` against
-`node:20-alpine`, so container builds do not use it and are not reproducible.
-Either generate a `package-lock.json` and switch the Dockerfile to `npm ci`, or
-switch the image to a Bun base and use `bun install --frozen-lockfile`.
-
-## get_frappe_doc
-
-### No way to discover valid paths
-**Priority:** P2
-
-The tool fetches by exact path only. A client that does not already know
-`en/basics/doctypes` has no way to find it. Add a `search_frappe_docs` tool, or
-expose the docs navigation tree as an MCP resource.
-
-### No caching
-**Priority:** P3
-
-Every call re-fetches and re-parses ~960 KB. Repeated lookups of the same page
-within a session pay the full cost each time. An in-memory TTL cache keyed by
-resolved URL would be a small change.
-
-### Code blocks lose their language hint
-**Priority:** P3
-
-Turndown emits bare ``` fences. Frappe docs mark language via a class on the
-`<code>` element (e.g. `language-python`). Mapping that class onto the fence
-would make returned snippets more useful.
-
-### Response size is unbounded
-**Priority:** P3
-
-Extraction cuts a typical page from ~960 KB to a few KB, which resolves the
-practical problem. There is still no hard cap, so an unusually large article
-could return more than a client wants. Consider a configurable byte ceiling with
-an explicit truncation notice.
+No open items.
 
 ## Completed
+
+### v0.2.0 (2026-08-08)
+
+- **Add CI** — GitHub Actions on Node 20 and 22: `npm ci`, typecheck, tests, a
+  check that no test files leak into the production build, and a Docker smoke
+  test asserting the stdio contract (nothing on stdout before a client speaks).
+  **Completed:** v0.2.0 (2026-08-08)
+- **Commit a lockfile for reproducible Docker builds** — `package-lock.json`
+  generated under Node 20; Dockerfile switched from `npm install` to `npm ci` in
+  both stages. **Completed:** v0.2.0 (2026-08-08)
+- **Make paths discoverable** — added the `search_frappe_docs` tool, which builds
+  a catalogue of all ~215 pages from the navigation tree embedded in any docs
+  page and ranks them against a keyword query.
+  **Completed:** v0.2.0 (2026-08-08)
+- **Cache fetched pages** — `TtlCache` with configurable TTL, bounded size, LRU
+  eviction and request coalescing, applied to both pages and the catalogue.
+  Repeat lookup measured at 709 ms cold to 51 ms warm.
+  **Completed:** v0.2.0 (2026-08-08)
+- **Bound response size** — `FRAPPE_DOCS_MAX_BYTES` (default 100 KB), cutting on
+  a line boundary with an explicit truncation notice, byte-accurate for
+  multi-byte text. **Completed:** v0.2.0 (2026-08-08)
+- **Label code fences** — implemented, but not as the original item described.
+  The item assumed the docs mark language with a `language-python` class; they
+  carry no class at all, so there was nothing to map. The class-based path exists
+  and takes precedence where a marker is present, and on this site the language
+  is inferred from content on high-confidence signals only, staying unlabelled
+  when ambiguous. **Completed:** v0.2.0 (2026-08-08)
+
+### v0.1.0 (2026-08-08)
 
 - **Rewrite as a real MCP stdio server** — replaced the Express HTTP endpoint
   with `@modelcontextprotocol/sdk` + `StdioServerTransport`; handshake verified

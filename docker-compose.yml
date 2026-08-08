@@ -1,0 +1,12 @@
+services:
+  frappe-docs-mcp:
+    build: .
+    # This server speaks MCP over stdio, so it publishes no port and is not a
+    # long-running daemon. Start it attached, with a client owning the stream:
+    #
+    #   docker compose run --rm -T frappe-docs-mcp
+    #
+    # `restart:` is deliberately absent. The process is meant to exit when its
+    # client disconnects; restarting it in a loop would just churn.
+    stdin_open: true
+    tty: false

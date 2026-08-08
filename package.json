@@ -1,0 +1,32 @@
+{
+  "name": "frappe-docs-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that provides access to Frappe framework documentation",
+  "type": "module",
+  "main": "dist/server.js",
+  "bin": {
+    "frappe-docs-mcp": "dist/server.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "tsc && node --test dist/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "node-html-parser": "^9.0.1",
+    "turndown": "^7.2.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.1",
+    "@types/turndown": "^5.0.6",
+    "typescript": "^5.4.2"
+  }
+}

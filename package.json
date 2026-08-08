@@ -1,6 +1,6 @@
 {
   "name": "frappe-docs-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server that provides access to Frappe framework documentation",
   "type": "module",
   "main": "dist/server.js",
@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "tsc && node --test dist/"
+    "test": "tsc && node --test dist/*.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

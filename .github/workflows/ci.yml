@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # Fails if package-lock.json and package.json have drifted apart.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck and test
+        run: npm test
+
+      # `npm test` globs dist/*.test.js. A glob that matches nothing fails
+      # loudly, but one that matches only some files would drop those suites
+      # silently and still report success, so assert the counts line up.
+      - name: Verify every test file ran
+        run: |
+          expected=$(ls src/*.test.ts | wc -l)
+          actual=$(ls dist/*.test.js | wc -l)
+          echo "test files: $expected source, $actual compiled"
+          if [ "$expected" -ne "$actual" ]; then
+            echo "::error::$expected test sources but $actual compiled; some suites were not run"
+            exit 1
+          fi
+          if [ "$expected" -eq 0 ]; then
+            echo "::error::no test files found at all"
+            exit 1
+          fi
+
+      - name: Verify the build excludes tests
+        run: |
+          rm -rf dist
+          npm run build
+          if ls dist/*.test.js >/dev/null 2>&1; then
+            echo "::error::test files leaked into the production build"
+            exit 1
+          fi
+          for f in docs-url.js extract.js catalog.js cache.js server.js; do
+            test -f "dist/$f" || { echo "::error::dist/$f missing"; exit 1; }
+          done
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t frappe-docs-mcp:ci .
+
+      # The server must announce readiness on stderr and write nothing to
+      # stdout until a client speaks, since stdout carries the JSON-RPC frames.
+      - name: Smoke test the stdio server
+        run: |
+          set -euo pipefail
+          docker run --rm -i frappe-docs-mcp:ci </dev/null \
+            >/tmp/stdout.txt 2>/tmp/stderr.txt
+
+          if [ -s /tmp/stdout.txt ]; then
+            echo "::error::server wrote to stdout before any request:"
+            cat /tmp/stdout.txt
+            exit 1
+          fi
+          grep -q "ready on stdio" /tmp/stderr.txt || {
+            echo "::error::server did not signal readiness on stderr"
+            cat /tmp/stderr.txt
+            exit 1
+          }
+          echo "stdio contract holds: stdout clean, readiness on stderr"

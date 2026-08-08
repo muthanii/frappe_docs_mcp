@@ -5,6 +5,45 @@ All notable changes to this project are documented here. The format follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version in
 `package.json` is the source of truth.
 
+## [0.2.0] - 2026-08-08
+
+Clears every open item from `TODOS.md`.
+
+### Added
+
+- **`search_frappe_docs` tool.** Fetching previously required knowing a page's
+  exact path. Every docs page embeds the full navigation tree, so one fetch
+  yields a catalogue of all ~215 pages, searchable by keyword. Every query token
+  must match, so extra words narrow the results.
+- **In-memory caching** of fetched pages and the catalogue, with a configurable
+  TTL (`FRAPPE_DOCS_CACHE_TTL_MS`, default 15 minutes). Concurrent requests for
+  the same page share one fetch rather than racing. Measured on a repeat lookup:
+  709 ms to 51 ms.
+- **Response ceiling** (`FRAPPE_DOCS_MAX_BYTES`, default 100 KB), cutting on a
+  line boundary with an explicit truncation notice. Byte-accurate for multi-byte
+  text. Set to `0` to disable.
+- **Language hints on code fences.** See the caveat below.
+- **CI** on Node 20 and 22: `npm ci`, typecheck, tests, a check that no test
+  files leak into the production build, and a Docker smoke test asserting the
+  server writes nothing to stdout before a client speaks.
+- **`package-lock.json`**, with the Docker build switched from `npm install` to
+  `npm ci`, so image builds are reproducible and fail loudly on lockfile drift.
+
+### Changed
+
+- `get_frappe_doc` responses are now capped and served from cache when warm.
+
+### Caveat: code fence languages
+
+The original task assumed the docs mark language with a class such as
+`language-python`. They do not. Every `<pre><code>` on the site carries no class
+at all, so there is nothing to map. The class-based path is implemented and takes
+precedence when a marker exists, but on this site the language is inferred from
+content instead, and only on high-confidence signals: parseable JSON, a leading
+shell command, a leading HTML tag, JavaScript keywords, or Python keywords and
+the Python-only `frappe` APIs. Anything ambiguous stays unlabelled, since a
+wrong label is worse for a reader than none.
+
 ## [0.1.0] - 2026-08-08
 
 Initial commit. An MCP server exposing the Frappe framework documentation over
@@ -61,4 +100,5 @@ initial commit. Recorded here because the code shape changed substantially:
   which overflows a typical context window on a single call. Responses are now
   reduced to the article body and converted to markdown.
 
+[0.2.0]: https://github.com/muthanii/frappe_docs_mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/muthanii/frappe_docs_mcp/releases/tag/v0.1.0

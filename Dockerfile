@@ -2,8 +2,10 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install
+# npm ci installs exactly what package-lock.json pins, so image builds are
+# reproducible and fail loudly if the lockfile and manifest disagree.
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY tsconfig.json tsconfig.build.json ./
 COPY src ./src
@@ -15,8 +17,8 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY package.json ./
-RUN npm install --omit=dev && npm cache clean --force
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
 

@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "frappe-docs-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/server.js"]
+    }
+  }
+}
